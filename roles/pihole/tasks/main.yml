@@ -1,0 +1,58 @@
+---
+- name: Update system packages
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Install Pi-hole dependencies
+  apt:
+    name:
+      - curl
+      - wget
+      - git
+      - python3-pip
+      - netplan.io
+    state: present
+
+- name: Download and install Pi-hole
+  shell: |
+    curl -sSL https://install.pi-hole.net | bash
+  environment:
+    PIHOLE_SKIP_OS_CHECK: true
+  register: pihole_install_result
+  changed_when: "'already running' not in pihole_install_result.stdout"
+  ignore_errors: yes
+
+- name: Display Pi-hole installation output
+  debug:
+    msg: "{{ pihole_install_result.stdout_lines }}"
+  when: pihole_install_result.stdout is defined
+
+- name: Configure Pi-hole DNS settings
+  block:
+    - name: Update upstream DNS servers
+      lineinfile:
+        path: "{{ pihole_config_path }}/pihole-FTL.conf"
+        regexp: "^UPSTREAM_DNS_1="
+        line: "UPSTREAM_DNS_1={{ pihole_upstream_dns_1 }}"
+        create: yes
+      notify: restart pi-hole
+
+    - name: Set secondary DNS
+      lineinfile:
+        path: "{{ pihole_config_path }}/pihole-FTL.conf"
+        regexp: "^UPSTREAM_DNS_2="
+        line: "UPSTREAM_DNS_2={{ pihole_upstream_dns_2 }}"
+        create: yes
+      notify: restart pi-hole
+
+- name: Ensure Pi-hole services are running
+  systemd:
+    name: "{{ item }}"
+    state: started
+    enabled: yes
+  loop:
+    - pihole-FTL
+    - lighttpd
+  failed_when: false
+  ignore_errors: yes

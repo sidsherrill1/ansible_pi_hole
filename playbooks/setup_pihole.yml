@@ -1,0 +1,83 @@
+---
+- name: Configure Pi-hole VMs
+  hosts: pihole_vms
+  become: yes
+  gather_facts: yes
+  vars_files:
+    - ../group_vars/pihole_vms.yml
+    - ../host_vars/{{ inventory_hostname }}.yml
+
+  pre_tasks:
+    - name: Debug - Display all variables
+      debug:
+        msg: |
+          static_ip: {{ static_ip | default('NOT DEFINED') }}
+          gateway_ip: {{ gateway_ip | default('NOT DEFINED') }}
+          nameserver_1: {{ nameserver_1 | default('NOT DEFINED') }}
+          nameserver_2: {{ nameserver_2 | default('NOT DEFINED') }}
+      changed_when: false
+
+    - name: Configure static IP address
+      block:
+        - name: Check current network configuration
+          shell: |
+            cat /etc/network/interfaces 2>/dev/null || cat /etc/netplan/*.yaml 2>/dev/null || echo "No config found"
+          register: current_network_config
+          changed_when: false
+
+        - name: Create netplan directory
+          file:
+            path: /etc/netplan
+            state: directory
+            mode: '0755'
+          when: ansible_os_family == "Debian"
+
+        - name: Configure static IP via netplan (Debian/Ubuntu)
+          copy:
+            content: |
+              network:
+                version: 2
+                ethernets:
+                  eth0:
+                    dhcp4: no
+                    addresses:
+                      - {{ static_ip }}/24
+                    gateway4: {{ gateway_ip }}
+                    nameservers:
+                      addresses: [{{ nameserver_1 }}, {{ nameserver_2 }}]
+            dest: /etc/netplan/99-pihole-static.yaml
+            mode: '0644'
+          notify: apply netplan
+          when: ansible_os_family == "Debian"
+
+        - name: Configure static IP via /etc/network/interfaces (fallback)
+          copy:
+            content: |
+              auto eth0
+              iface eth0 inet static
+                address {{ static_ip }}
+                netmask 255.255.255.0
+                gateway {{ gateway_ip }}
+                dns-nameservers {{ nameserver_1 }} {{ nameserver_2 }}
+            dest: /etc/network/interfaces.d/eth0-static
+            mode: '0644'
+          notify: restart networking
+          when: ansible_os_family == "Debian" and not ansible_facts.get('netplan_version')
+
+  roles:
+    - pihole
+
+  post_tasks:
+    - name: Display Pi-hole setup status
+      debug:
+        msg: "Pi-hole configured on {{ inventory_hostname }}"
+
+    - name: Verify static IP configuration
+      shell: |
+        ip addr show | grep "inet " | grep -v "127.0.0.1"
+      register: ip_config
+      changed_when: false
+
+    - name: Display current IP configuration
+      debug:
+        msg: "{{ ip_config.stdout_lines }}"

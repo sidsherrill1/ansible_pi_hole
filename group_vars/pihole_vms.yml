@@ -1,0 +1,21 @@
+---
+# Group variables for all Pi-hole VMs
+
+# Static IP Configuration (required for Pi-hole)
+# These are defaults; override in host_vars for specific hosts
+static_ip: "192.168.86.100"
+gateway_ip: "192.168.86.1"
+nameserver_1: "8.8.8.8"
+nameserver_2: "1.1.1.1"
+
+# NTP Configuration
+ntp_enabled: true
+ntp_timezone: UTC
+
+# Update settings for all Pi-hole instances
+auto_update_enabled: false
+update_check_interval: 7
+
+# Monitoring
+monitoring_enabled: true
+syslog_enabled: true

@@ -1,0 +1,21 @@
+---
+- name: restart pi-hole
+  systemd:
+    name: pihole-FTL
+    state: restarted
+
+- name: restart lighttpd
+  systemd:
+    name: lighttpd
+    state: restarted
+
+- name: apply netplan
+  shell: /usr/sbin/netplan apply
+  changed_when: true
+  failed_when: false
+
+- name: restart networking
+  systemd:
+    name: networking
+    state: restarted
+  changed_when: true

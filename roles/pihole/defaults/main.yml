@@ -1,0 +1,12 @@
+---
+# Pi-hole default variables
+pihole_admin_password: "admin123"
+pihole_gravity_db_path: /etc/pihole/pihole-FTL.db
+pihole_config_path: /etc/pihole
+
+# DNS settings
+pihole_upstream_dns_1: "8.8.8.8"
+pihole_upstream_dns_2: "8.8.4.4"
+
+# Update settings
+pihole_update_interval: 7  # days

@@ -1,0 +1,13 @@
+---
+# Host-specific variables for pihole-vm-1
+pihole_hostname: pihole-primary
+pihole_description: "Primary Pi-hole DNS Server"
+pihole_admin_password: "{{ vault_pihole_vm1_password }}"
+pihole_upstream_dns_1: "8.8.8.8"
+pihole_upstream_dns_2: "1.1.1.1"
+
+# Static IP Configuration
+static_ip: "192.168.86.125"
+gateway_ip: "192.168.86.1"
+nameserver_1: "8.8.8.8"
+nameserver_2: "1.1.1.1"
