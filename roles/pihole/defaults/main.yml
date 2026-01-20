@@ -1,6 +1,6 @@
 ---
 # Pi-hole default variables
-pihole_admin_password: "admin123"
+pihole_admin_password: "admin123"  # Change this to a secure password - preferably store in group_vars/pihole_vms_vault.yml
 pihole_gravity_db_path: /etc/pihole/pihole-FTL.db
 pihole_config_path: /etc/pihole
 
@@ -10,3 +10,4 @@ pihole_upstream_dns_2: "8.8.4.4"
 
 # Update settings
 pihole_update_interval: 7  # days
+

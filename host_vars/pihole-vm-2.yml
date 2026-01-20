@@ -2,7 +2,7 @@
 # Host-specific variables for pihole-vm-2
 pihole_hostname: pihole-secondary
 pihole_description: "Secondary Pi-hole DNS Server"
-pihole_admin_password: "{{ vault_pihole_vm2_password }}"
+pihole_admin_password: "{{ vault_pihole_vm_password }}"
 pihole_upstream_dns_1: "1.1.1.1"
 pihole_upstream_dns_2: "8.8.8.8"
 

@@ -5,6 +5,7 @@
   gather_facts: yes
   vars_files:
     - ../group_vars/pihole_vms.yml
+    - ../group_vars/pihole_vms_vault.yml
     - ../host_vars/{{ inventory_hostname }}.yml
 
   pre_tasks:

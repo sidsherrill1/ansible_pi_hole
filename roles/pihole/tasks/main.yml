@@ -56,3 +56,8 @@
     - lighttpd
   failed_when: false
   ignore_errors: yes
+
+- name: Change Pi-hole web admin password
+  shell: pihole setpassword "{{ vault_pihole_admin_password }}" ""
+  no_log: true
+
